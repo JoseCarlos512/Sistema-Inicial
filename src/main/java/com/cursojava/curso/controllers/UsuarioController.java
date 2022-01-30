@@ -20,27 +20,27 @@ public class UsuarioController {
     @Autowired
     private JWTUtil jwtUtil;
 
-    @RequestMapping(value = "api/usuarios/{id}", method = RequestMethod.GET) /*Esta metodo se añade en la url*/
+    @RequestMapping(value = "api/usuario/{id}", method = RequestMethod.GET) /*Esta metodo se añade en la url*/
     public Usuario getUsuario(
-            @PathVariable Long id
+        @RequestHeader("Authorization") String token,
+        @PathVariable Long id
     ) {
-        Usuario usuario = new Usuario();
-        usuario.setId(id);
-        usuario.setNombre("Jose");
-        usuario.setApellido("Leon");
-        usuario.setEmail("Jose@gmail.com");
-        usuario.setTelefono("990719883");
+        if (!validarToken(token))
+            return new Usuario();
+
+        Usuario usuario = usuarioDao.obtenerUsuario(id);
         return usuario;
     }
 
-    @RequestMapping(value = "api/usuario-edit") /*Esta metodo se añade en la url*/
-    public Usuario editar() {
-        Usuario usuario = new Usuario();
-        usuario.setNombre("Jose");
-        usuario.setApellido("Leon");
-        usuario.setEmail("Jose@gmail.com");
-        usuario.setTelefono("990719883");
-        return usuario;
+    @RequestMapping(value = "api/usuario", method = RequestMethod.PUT) /*Esta metodo se añade en la url*/
+    public void update(
+        @RequestHeader("Authorization") String token,
+        @RequestBody Usuario usuario
+    ) {
+        if (!validarToken(token))
+            return;
+
+        usuarioDao.updateUsuario(usuario);
     }
 
     @RequestMapping(value = "api/usuarios/{id}", method = RequestMethod.DELETE) /*Esta metodo se añade en la url*/
@@ -48,7 +48,7 @@ public class UsuarioController {
         @RequestHeader("Authorization") String token,
         @PathVariable Long id
     ) {
-        if (validarToken(token))
+        if (!validarToken(token))
             return;
 
         usuarioDao.eliminar(id);
@@ -88,6 +88,7 @@ public class UsuarioController {
 
     private boolean validarToken(String token) {
         String usuarioID = jwtUtil.getKey(token);
+
         return usuarioID != null;
     }
 }

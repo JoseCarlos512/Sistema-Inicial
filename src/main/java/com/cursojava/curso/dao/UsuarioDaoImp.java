@@ -19,6 +19,12 @@ public class UsuarioDaoImp implements UsuarioDao{
     private EntityManager entityManager;
 
     @Override
+    public Usuario obtenerUsuario(Long id) {
+        Usuario usuario = entityManager.find(Usuario.class, id);
+        return usuario;
+    }
+
+    @Override
     public List<Usuario> getUsuarios() {
         String query = "FROM Usuario";
         return entityManager.createQuery(query).getResultList();
@@ -32,6 +38,11 @@ public class UsuarioDaoImp implements UsuarioDao{
 
     @Override
     public void registrar(Usuario usuario) {
+        entityManager.merge(usuario);
+    }
+
+    @Override
+    public void updateUsuario(Usuario usuario) {
         entityManager.merge(usuario);
     }
 
@@ -55,4 +66,6 @@ public class UsuarioDaoImp implements UsuarioDao{
         }
         return null;
     }
+
+
 }
